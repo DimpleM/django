@@ -35,14 +35,28 @@ class Profiles(APIView):
     def get(self, request,  format=None):
         username = request.user.username
         user = User.objects.get(username=username)
-        model = Profile.objects.get(user=user)
         try:
+            model = Profile.objects.get(user=user)
             serializer = ProfileSerializer(instance=model)
-
             return Response(serializer.data) 
         except:
             error = "Profile Does Not exists"
             return Response(error, status= status.HTTP_400_BAD_REQUEST)
+
+    def patch(self,request):
+        username = request.user.username
+        user = User.objects.get(username=username)
+        try:
+            model = Profile.objects.get(user=user)
+            serializer = ProfileSerializer(instance=model,data= request.data,partial=True)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data)
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        except:
+            error = "Some error occured"
+            return Response(error, status= status.HTTP_400_BAD_REQUEST)
+
 
 class AddFriend(APIView):
     permission_classes = [IsAuthenticated, ]
